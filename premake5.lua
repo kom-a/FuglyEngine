@@ -25,9 +25,16 @@ project "Fugly"
 		"Dependencies/Includes"
 	}
 
+	defines
+	{
+		"GLEW_STATIC"
+	}
+
 	links
 	{
-		"glfw3.lib"
+		"glfw3.lib",
+		"glew32s.lib",
+		"opengl32.lib"
 	}
 
 	filter "platforms:x86"

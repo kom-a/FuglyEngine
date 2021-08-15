@@ -17,6 +17,7 @@
 *.sln
 *.user
 *.vcxproj
+*.filters
 
 
 #Bin

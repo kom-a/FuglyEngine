@@ -1,18 +1,18 @@
 #include <iostream>
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+#include "Graphics/Window.h"
 
 int main()
 {
-	glfwInit();
+	using namespace Fugly;
 
-	GLFWwindow* window = glfwCreateWindow(1280, 720, "GLFW window", nullptr, nullptr);
-	glfwShowWindow(window);
-	glfwMakeContextCurrent(window);
+	Window window(1280, 720, "Fugly");
 
-	while (!glfwWindowShouldClose(window))
+	while (!window.Closed())
 	{
-		glfwPollEvents();
-		glfwSwapBuffers(window);
+		window.Update();
 	}
 
 	return 0;
