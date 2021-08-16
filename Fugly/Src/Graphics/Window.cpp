@@ -47,10 +47,12 @@ namespace Fugly
 		}
 
 		LOG_INFO("Fugly engine has been initialized successfully!");
+		LOG_INFO("OpenGL version: {0}", glGetString(GL_VERSION));
 	}
 
 	void Window::Update()
 	{
+		LOG_GL_ERRORS();
 		glfwPollEvents();
 		glfwSwapBuffers(m_Window);
 	}
