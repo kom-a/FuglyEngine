@@ -20,6 +20,9 @@ namespace Fugly
 		Renderer();
 		~Renderer();
 
+		void Begin();
+		void End();
+
 		void Submit(const Sprite& sprite);
 		void Flush();
 
@@ -27,6 +30,7 @@ namespace Fugly
 		VertexArray m_VertexArray;
 		unsigned m_VBO;
 
+		RendererLayout* m_Buffer;
 		size_t m_SpritesCount;
 	};
 }

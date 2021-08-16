@@ -26,31 +26,39 @@ namespace Fugly
 
 	}
 
-	void Renderer::Submit(const Sprite& sprite)
+	void Renderer::Begin()
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-		RendererLayout* buffer = (RendererLayout*)glMapBuffer(GL_ARRAY_BUFFER, GL_READ_WRITE);
+		m_Buffer = (RendererLayout*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+	}
+
+	void Renderer::End()
+	{
+		glUnmapBuffer(GL_ARRAY_BUFFER);
+	}
+
+	void Renderer::Submit(const Sprite& sprite)
+	{
 		size_t i = m_SpritesCount * 6;
-		buffer[i + 0].position = sprite.GetPosition();
-		buffer[i + 0].color= sprite.GetColor();
+		m_Buffer[i + 0].position = sprite.GetPosition();
+		m_Buffer[i + 0].color = sprite.GetColor();
 
-		buffer[i + 1].position = sprite.GetPosition() + glm::vec3(sprite.GetSize().x, 0, 0);
-		buffer[i + 1].color = sprite.GetColor();
+		m_Buffer[i + 1].position = sprite.GetPosition() + glm::vec3(sprite.GetSize().x, 0, 0);
+		m_Buffer[i + 1].color = sprite.GetColor();
 
-		buffer[i + 2].position = sprite.GetPosition() + sprite.GetSize();
-		buffer[i + 2].color = sprite.GetColor();
+		m_Buffer[i + 2].position = sprite.GetPosition() + sprite.GetSize();
+		m_Buffer[i + 2].color = sprite.GetColor();
 
-		buffer[i + 3].position = sprite.GetPosition();
-		buffer[i + 3].color = sprite.GetColor();
+		m_Buffer[i + 3].position = sprite.GetPosition();
+		m_Buffer[i + 3].color = sprite.GetColor();
 
-		buffer[i + 4].position = sprite.GetPosition() + sprite.GetSize();
-		buffer[i + 4].color = sprite.GetColor();
+		m_Buffer[i + 4].position = sprite.GetPosition() + sprite.GetSize();
+		m_Buffer[i + 4].color = sprite.GetColor();
 
-		buffer[i + 5].position = sprite.GetPosition() + glm::vec3(0, sprite.GetSize().y, 0.0f);
-		buffer[i + 5].color = sprite.GetColor();
+		m_Buffer[i + 5].position = sprite.GetPosition() + glm::vec3(0, sprite.GetSize().y, 0.0f);
+		m_Buffer[i + 5].color = sprite.GetColor();
 
 		m_SpritesCount++;
-		glUnmapBuffer(GL_ARRAY_BUFFER);
 	}
 
 	void Renderer::Flush()
