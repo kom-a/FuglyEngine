@@ -22,20 +22,6 @@ int main()
 		0.5f, -0.5f, 0.0f
 	};
 
-	/*VertexArray VAO;
-	VAO.Bind();
-
-	unsigned VBO;
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * 4, 0);
-	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * 4, (const void*)(3 * 4));
-	glEnableVertexAttribArray(1);*/
-
 	Shader shader("Res/VertexShader.glsl", "Res/FragmentShader.glsl");
 	shader.Bind();
 
@@ -66,11 +52,13 @@ int main()
 
 		renderer.Begin();
 
-		for (float i = -1; i <= 1.; i += 0.1f)
+		float step = (glm::sin(glfwGetTime()) + 1) / 2.0f;
+
+		for (float i = -1; i <= 1.; i += 0.1)
 		{
-			for (float j = -1; j <= 1.; j += 0.1f)
+			for (float j = -1; j <= 1.; j += 0.1)
 			{
-				renderer.Submit(Sprite(glm::vec3(i, j, 0), glm::vec3(0.1, 0.1f, 0.0f), glm::vec4((i + 1) / 2.0f, (j + 1) / 2.0f, 0.5f, 1.0f)));
+				renderer.Submit(Sprite(glm::vec3(i, j, 0), glm::vec3(0.1, 0.1, 0.0f), glm::vec4((i + 1) / 2.0f, (j + 1) / 2.0f, 0.5f, 1.0f)));
 			}
 		}
 

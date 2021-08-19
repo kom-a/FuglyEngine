@@ -28,6 +28,7 @@ namespace Fugly
 
 	private:
 		VertexArray m_VertexArray;
+		IndexBuffer m_IndexBuffer;
 		unsigned m_VBO;
 
 		RendererLayout* m_Buffer;
