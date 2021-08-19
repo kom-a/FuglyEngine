@@ -25,4 +25,6 @@ namespace Fugly
 		int m_Width, m_Height;
 		std::string m_Title;
 	};
+
+	void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 }

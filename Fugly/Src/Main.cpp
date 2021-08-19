@@ -8,6 +8,7 @@
 #include "Graphics/Renderer.h"
 #include "Graphics/Sprite.h"
 #include "Utils/Log.h"
+#include "Input/Input.h"
 
 int main()
 {
@@ -49,6 +50,16 @@ int main()
 		}
 
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		if (Keyboard::IsKeyPressed(GLFW_KEY_W))
+		{
+			LOG_TRACE("W KEY HAS BEEN PRESSED");
+		}
+
+		if (Mouse::IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
+		{
+			LOG_TRACE("Mouse X: {0}\tMouse Y: {1}", Mouse::GetX(), Mouse::GetY());
+		}
 
 		renderer.Begin();
 

@@ -73,7 +73,6 @@ namespace Fugly
 		m_IndexBuffer.Bind();
 		glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 		glDrawElements(GL_TRIANGLES, m_IndexBuffer.GetCount(), GL_UNSIGNED_INT, 0);
-		LOG_DEBUG("Sprites flushed: {0}", m_SpritesCount);
 		m_SpritesCount = 0;
 		m_IndexBuffer.Clear();
 	}

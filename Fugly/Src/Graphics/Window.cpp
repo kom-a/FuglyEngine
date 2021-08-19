@@ -1,6 +1,7 @@
 #include "Window.h"
 
 #include "../Utils/Log.h"
+#include "../Input/Input.h"
 
 namespace Fugly
 {
@@ -46,6 +47,11 @@ namespace Fugly
 			return;
 		}
 
+		glfwSetCursorPosCallback(m_Window, cursor_position_callback);
+		glfwSetMouseButtonCallback(m_Window, mouse_button_callback);
+		glfwSetKeyCallback(m_Window, key_callback);
+		glfwSetFramebufferSizeCallback(m_Window, framebuffer_size_callback);
+
 		LOG_INFO("Fugly engine has been initialized successfully!");
 		LOG_INFO("OpenGL version: {0}", glGetString(GL_VERSION));
 	}
@@ -55,6 +61,11 @@ namespace Fugly
 		LOG_GL_ERRORS();
 		glfwPollEvents();
 		glfwSwapBuffers(m_Window);
+	}
+
+	void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+	{
+		glViewport(0, 0, width, height);
 	}
 }
 
