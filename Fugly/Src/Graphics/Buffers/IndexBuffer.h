@@ -1,6 +1,6 @@
 #pragma once
 
-#define MAX_INDICES 1 << 16
+#define INDECIES_BUFFER_SIZE 1 << 24
 
 namespace Fugly
 {
@@ -24,6 +24,6 @@ namespace Fugly
 	private:
 		unsigned m_IBO;
 		size_t m_SpritesCount;
-		unsigned short* m_Buffer;
+		unsigned int* m_Buffer;
 	};
 }

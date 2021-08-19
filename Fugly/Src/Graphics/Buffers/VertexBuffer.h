@@ -5,13 +5,17 @@ namespace Fugly
 	class VertexBuffer
 	{
 	public:
-		VertexBuffer(float* data, int count);
+		VertexBuffer(size_t size);
 		~VertexBuffer();
 
 		void Bind();
 		void Unbind();
 
+		void Begin();
+		void End();
+
 	private:
 		unsigned m_VBO;
+		float* m_Buffer;
 	};
 }

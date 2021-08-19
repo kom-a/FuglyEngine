@@ -2,6 +2,8 @@
 
 #include <GL/glew.h>
 
+#include "../../Utils/Log.h"
+
 namespace Fugly
 {
 	IndexBuffer::IndexBuffer()
@@ -9,7 +11,7 @@ namespace Fugly
 	{
 		glGenBuffers(1, &m_IBO);
 		Bind();
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, MAX_INDICES, nullptr, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, INDECIES_BUFFER_SIZE, nullptr, GL_DYNAMIC_DRAW);
 	}
 
 	IndexBuffer::~IndexBuffer()
@@ -30,7 +32,7 @@ namespace Fugly
 	void IndexBuffer::Begin()
 	{
 		Bind();
-		m_Buffer = (unsigned short*)glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
+		m_Buffer = (unsigned int*)glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
 	}
 
 	void IndexBuffer::End()
@@ -41,6 +43,13 @@ namespace Fugly
 	void IndexBuffer::Add()
 	{
 		int i = m_SpritesCount * 6;
+
+		if ((i + 6) * 6 * sizeof(unsigned int) > INDECIES_BUFFER_SIZE)
+		{
+			LOG_ERROR("Index buffer overflow.");
+			return;
+		}
+
 		int currentIndex = m_SpritesCount * 4;
 		m_Buffer[i + 0] = currentIndex + 0;
 		m_Buffer[i + 1] = currentIndex + 1;

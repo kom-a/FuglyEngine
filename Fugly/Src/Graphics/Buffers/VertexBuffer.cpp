@@ -4,9 +4,11 @@
 
 namespace Fugly
 {
-	VertexBuffer::VertexBuffer(float* data, int count)
+	VertexBuffer::VertexBuffer(size_t size)
 	{
 		glGenBuffers(1, &m_VBO);
+		Bind();
+		glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 	}
 
 	VertexBuffer::~VertexBuffer()
@@ -23,6 +25,18 @@ namespace Fugly
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
+
+	void VertexBuffer::Begin()
+	{
+		Bind();
+		m_Buffer = (float*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+	}
+
+	void VertexBuffer::End()
+	{
+		glUnmapBuffer(GL_ARRAY_BUFFER);
+	}
+
 }
 
 

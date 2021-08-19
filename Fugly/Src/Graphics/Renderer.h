@@ -4,7 +4,8 @@
 
 #include "Buffers/Buffers.h"
 
-#define RENDERER_BUFFER_SIZE 32768 * 256
+#define RENDERER_BUFFER_SIZE 1 << 24
+
 
 namespace Fugly
 {
@@ -29,6 +30,7 @@ namespace Fugly
 	private:
 		VertexArray m_VertexArray;
 		IndexBuffer m_IndexBuffer;
+
 		unsigned m_VBO;
 
 		RendererLayout* m_Buffer;

@@ -27,7 +27,7 @@ int main()
 
 	Renderer renderer;
 
-	glClearColor(0.2f, 0.3f, 0.5f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	double lastTime = glfwGetTime();
 	double unprocessedTime = 0;
@@ -52,13 +52,13 @@ int main()
 
 		renderer.Begin();
 
-		float step = (glm::sin(glfwGetTime()) + 1) / 2.0f;
+		float step = (glm::sin(glfwGetTime()) + 1.0) / 2.0f + 0.05f;
 
-		for (float i = -1; i <= 1.; i += 0.1)
+		for (float i = -1; i <= 1.; i += step)
 		{
-			for (float j = -1; j <= 1.; j += 0.1)
+			for (float j = -1; j <= 1.; j += step)
 			{
-				renderer.Submit(Sprite(glm::vec3(i, j, 0), glm::vec3(0.1, 0.1, 0.0f), glm::vec4((i + 1) / 2.0f, (j + 1) / 2.0f, 0.5f, 1.0f)));
+				renderer.Submit(Sprite(glm::vec3(i, j, 0), glm::vec3(step, step, 0.0f), glm::vec4((i + 1) / 2.0f, (j + 1) / 2.0f, 0.9f, 1.0f)));
 			}
 		}
 

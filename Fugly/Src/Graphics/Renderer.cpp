@@ -45,6 +45,12 @@ namespace Fugly
 	{
 		size_t i = m_SpritesCount * 4;
 
+		if ((i + 3) * sizeof(RendererLayout) > RENDERER_BUFFER_SIZE)
+		{
+			LOG_ERROR("Renderer vertex buffer overflow! Sprite submition has been denied.");
+			return;
+		}
+
 		m_Buffer[i + 0].position = sprite.GetPosition();
 		m_Buffer[i + 0].color = sprite.GetColor();
 
@@ -66,7 +72,8 @@ namespace Fugly
 		m_VertexArray.Bind();
 		m_IndexBuffer.Bind();
 		glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-		glDrawElements(GL_TRIANGLES, m_IndexBuffer.GetCount(), GL_UNSIGNED_SHORT, 0);
+		glDrawElements(GL_TRIANGLES, m_IndexBuffer.GetCount(), GL_UNSIGNED_INT, 0);
+		LOG_DEBUG("Sprites flushed: {0}", m_SpritesCount);
 		m_SpritesCount = 0;
 		m_IndexBuffer.Clear();
 	}
