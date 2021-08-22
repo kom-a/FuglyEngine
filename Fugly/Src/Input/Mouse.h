@@ -20,8 +20,9 @@ namespace Fugly
 
 		friend void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 		friend void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+
+	private:
+		static bool s_FirstMouse;
 	};
 
-	void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
-	void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 }

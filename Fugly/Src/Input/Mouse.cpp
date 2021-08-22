@@ -6,6 +6,7 @@ namespace Fugly
 	double Mouse::s_MouseX;
 	double Mouse::s_MouseY;
 	bool Mouse::s_Buttons[MAX_BUTTONS];
+	bool Mouse::s_FirstMouse = true;
 
 	void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 	{

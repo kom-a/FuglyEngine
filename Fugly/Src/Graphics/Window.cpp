@@ -51,6 +51,10 @@ namespace Fugly
 		glfwSetMouseButtonCallback(m_Window, mouse_button_callback);
 		glfwSetKeyCallback(m_Window, key_callback);
 		glfwSetFramebufferSizeCallback(m_Window, framebuffer_size_callback);
+		glfwSetWindowUserPointer(m_Window, this);
+
+		glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 
 		LOG_INFO("Fugly engine has been initialized successfully!");
 		LOG_INFO("OpenGL version: {0}", glGetString(GL_VERSION));
@@ -61,10 +65,14 @@ namespace Fugly
 		LOG_GL_ERRORS();
 		glfwPollEvents();
 		glfwSwapBuffers(m_Window);
+		
 	}
 
 	void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	{
+		Window* win = (Window*)glfwGetWindowUserPointer(window);
+		win->m_Width = width;
+		win->m_Height = height;
 		glViewport(0, 0, width, height);
 	}
 }

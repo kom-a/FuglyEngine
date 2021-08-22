@@ -18,6 +18,7 @@ project "Fugly"
 		"%{prj.name}/Src/**.c",
 		"%{prj.name}/Src/**.cc",
 		"%{prj.name}/Src/**.cpp",
+		"%{prj.name}/Res/**.*",
 	}
 
 	includedirs
