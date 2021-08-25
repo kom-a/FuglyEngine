@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Sprite.h"
+#include "Model.h"
 
 #include "Buffers/Buffers.h"
 

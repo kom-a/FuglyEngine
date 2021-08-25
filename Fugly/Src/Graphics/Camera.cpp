@@ -60,7 +60,7 @@ namespace Fugly
 		m_Yaw += offset.x;
 		m_Pitch += offset.y;
 
-		m_Pitch = glm::clamp(m_Pitch, -89.0f, 89.0f);
+		m_Pitch = glm::clamp(m_Pitch, -89.99f, 89.99f);
 
 		m_Front.x = cos(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch));
 		m_Front.y = sin(glm::radians(m_Pitch));
@@ -70,7 +70,6 @@ namespace Fugly
 		
 		glm::vec3 right = glm::normalize(glm::cross(m_Front, glm::vec3(0, 1, 0)));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
 		m_Up = glm::normalize(glm::cross(right, m_Front));
-
 	}
 
 }

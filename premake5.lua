@@ -1,6 +1,6 @@
 workspace "Fugly"
 	configurations { "Debug", "Release" }
-	platforms { "x86", "x86_64" }
+	platforms { "x86_64" }
 
 
 project "Fugly"
@@ -23,7 +23,8 @@ project "Fugly"
 
 	includedirs
 	{
-		"Dependencies/Includes"
+		"Dependencies/Includes",
+		"Fugly/Src/Vendor"
 	}
 
 	defines
@@ -35,7 +36,8 @@ project "Fugly"
 	{
 		"glfw3.lib",
 		"glew32s.lib",
-		"opengl32.lib"
+		"opengl32.lib",
+		"assimp.lib"
 	}
 
 	filter "platforms:x86"
@@ -52,3 +54,5 @@ project "Fugly"
 
 	filter "configurations:Release"
 		optimize "On"
+
+-- TODO: postbuild command to copy assimp.dll to .exe directory

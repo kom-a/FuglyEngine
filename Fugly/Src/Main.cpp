@@ -11,8 +11,18 @@
 #include "Graphics/Sprite.h"
 #include "Graphics/Texture.h"
 #include "Graphics/Camera.h"
+#include "Graphics/Model.h"
 #include "Utils/Log.h"
 #include "Input/Input.h"
+
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
+#include <vector>
+
+std::vector<float> Positions;
+std::vector<unsigned int> Indices;
 
 int main()
 {
@@ -25,7 +35,7 @@ int main()
 
 	Renderer renderer;
 
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.125f, 0.125f, 0.125f, 1.0f);
 
 	float lastTime = glfwGetTime();
 	float unprocessedTime = 0;
@@ -39,19 +49,55 @@ int main()
 
 	Sprite sprite(glm::vec3(0, 0, -50.0f), glm::vec3(50, 50, 0.0f), glm::vec4(0.8f, 0.5f, 0.3f, 1.0f));
 
-	float cubeVertices[] = {
-		-0.5f,  0.5f, 0.5f,		0.0f, 1.0f,
-		 0.5f,  0.5f, 0.5f,		1.0f, 1.0f,
-		-0.5f, -0.5f, 0.5f,		0.0f, 0.0f,
-		 0.5f, -0.5f, 0.5f,		1.0f, 0.0f,
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile("Res/Backpack.fbx", aiProcess_Triangulate | aiProcess_FlipUVs);
+	aiNode* rootNode = scene->mRootNode;
 
-		-0.5f,  0.5f, -0.5f,	1.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,	0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,	1.0f, 0.0f,
-		 0.5f, -0.5f, -0.5f,	0.0f, 0.0f,
+	if (!scene || !rootNode || (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE))
+	{
+		LOG_ERROR("Failed to load model");
+	}
+
+	size_t indexOffset = 0;
+
+	for (size_t i = 0; i < scene->mNumMeshes; i++)
+	{
+		aiMesh* mesh = scene->mMeshes[i];
+		for (size_t i = 0; i < mesh->mNumVertices; i++)
+		{
+			aiVector3D& pos = mesh->mVertices[i];
+			Positions.push_back(pos.x);
+			Positions.push_back(pos.y);
+			Positions.push_back(pos.z);
+		}
+
+		for (size_t i = 0; i < mesh->mNumFaces; i++)
+		{
+			aiFace& face = mesh->mFaces[i];
+			for (size_t i = 0; i < face.mNumIndices; i++)
+			{
+				Indices.push_back(face.mIndices[i] + indexOffset);
+			}
+		}
+
+		indexOffset += mesh->mNumVertices;
+
+	}
+
+
+	float cubeVertices[] = {
+		-0.5f,  0.5f, 0.5f,	
+		 0.5f,  0.5f, 0.5f,	
+		-0.5f, -0.5f, 0.5f,	
+		 0.5f, -0.5f, 0.5f,	
+
+		-0.5f,  0.5f, -0.5f,
+		 0.5f,  0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
+		 0.5f, -0.5f, -0.5f,
 	};
 
-	short indices[] = {
+	unsigned int cubeIndices[] = {
 		0, 1, 2, 1, 2, 3,
 		4, 5, 6, 5, 6, 7,
 		0, 2, 4, 2, 4, 6,
@@ -66,27 +112,26 @@ int main()
 	unsigned VBO;
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, Positions.size() * sizeof(float), &Positions[0], GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * 4, (const void*)(0 * 4));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (const void*)(0));
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * 4, (const void*)(3 * 4));
-	glEnableVertexAttribArray(1);
 
 	unsigned IBO;
 	glGenBuffers(1, &IBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, Indices.size() * sizeof(unsigned int), &Indices[0], GL_STATIC_DRAW);
+	
 	Texture texture("Res/container.jpg", 0);
 
 	Shader testShader("Res/TestVertex.glsl", "Res/TestFragment.glsl");
 	glm::mat4 testModel(1.0f);
 	glm::mat4 testProjection = glm::perspective(glm::radians(45.0f), window.Aspect(), 0.01f, 100.0f);
 
-	Camera camera(glm::vec3(0, 0, 3), glm::vec3(0, 0, -1));
+	Camera camera(glm::vec3(0, 0, 8), glm::vec3(0, 0, -1));
 	
 	glEnable(GL_DEPTH_TEST);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	while (!window.Closed())
 	{
@@ -127,7 +172,7 @@ int main()
 		testShader.Bind();
 		testShader.SetMatrix4("u_MVP", testProjection * camera.GetViewMatrix() * testModel);
 		
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
+		glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, 0);
 
 		camera.Update(deltaTime);
 		window.Update();

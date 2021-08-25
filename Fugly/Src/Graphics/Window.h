@@ -26,6 +26,7 @@ namespace Fugly
 
 	private:
 		void Init();
+		void InitImGui();
 
 	private:
 		GLFWwindow* m_Window;
