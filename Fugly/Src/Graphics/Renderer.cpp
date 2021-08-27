@@ -7,20 +7,26 @@
 namespace Fugly
 {
 	Renderer::Renderer()
-		: m_SpritesCount(0),
+		: m_VerticesCount(0),
+		m_IndicesCount(0),
+		m_IndexOffset(0),
+		m_IndexBuffer(nullptr),
 		m_Buffer(nullptr)
 	{
 		m_VertexArray.Bind();
-		m_IndexBuffer.Bind();
 		
 		glGenBuffers(1, &m_VBO);
 		glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 		glBufferData(GL_ARRAY_BUFFER, RENDERER_BUFFER_SIZE, nullptr, GL_DYNAMIC_DRAW);
 
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(RendererLayout), (const void*)offsetof(RendererLayout, position));
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)offsetof(Vertex, position));
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(RendererLayout), (const void*)offsetof(RendererLayout, color));
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)offsetof(Vertex, normal));
 		glEnableVertexAttribArray(1);
+
+		glGenBuffers(1, &m_IBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, RENDERER_BUFFER_SIZE, nullptr, GL_DYNAMIC_DRAW);
 	}
 
 	Renderer::~Renderer()
@@ -31,50 +37,50 @@ namespace Fugly
 	void Renderer::Begin()
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-		m_Buffer = (RendererLayout*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-		m_IndexBuffer.Begin();
+		m_Buffer = (Vertex*)glMapBuffer(GL_ARRAY_BUFFER, GL_READ_WRITE);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
+		m_IndexBuffer = (unsigned int*)glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_READ_WRITE);
 	}
 
 	void Renderer::End()
 	{
 		glUnmapBuffer(GL_ARRAY_BUFFER);
-		m_IndexBuffer.End();
+		glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
 	}
 
-	void Renderer::Submit(const Sprite& sprite)
+	void Renderer::Submit(const Model& model)
 	{
-		size_t i = m_SpritesCount * 4;
-
-		if ((i + 3) * sizeof(RendererLayout) > RENDERER_BUFFER_SIZE)
+		for (const Mesh& mesh : model.GetMeshes())
 		{
-			LOG_ERROR("Renderer vertex buffer overflow! Sprite submition has been denied.");
-			return;
+			for (const Vertex& vertex : mesh.GetVertices())
+			{
+				m_Buffer[m_VerticesCount].position = vertex.position;
+				m_Buffer[m_VerticesCount].normal = vertex.normal;
+				m_VerticesCount++;
+			}
+
+			const std::vector<unsigned int>& meshIndices = mesh.GetIndices();
+			size_t meshIndicesSize = meshIndices.size();
+			for (size_t i = 0; i < meshIndicesSize; i++)
+			{
+				m_IndexBuffer[m_IndicesCount] = meshIndices[i] + m_IndexOffset;
+				m_IndicesCount++;
+			}
+
+			m_IndexOffset += mesh.GetVertices().size();
 		}
-
-		m_Buffer[i + 0].position = sprite.GetPosition();
-		m_Buffer[i + 0].color = sprite.GetColor();
-
-		m_Buffer[i + 1].position = sprite.GetPosition() + glm::vec3(sprite.GetSize().x, 0, 0);
-		m_Buffer[i + 1].color = sprite.GetColor();
-
-		m_Buffer[i + 2].position = sprite.GetPosition() + sprite.GetSize();
-		m_Buffer[i + 2].color = sprite.GetColor();
-
-		m_Buffer[i + 3].position = sprite.GetPosition() + glm::vec3(0, sprite.GetSize().y, 0.0f);
-		m_Buffer[i + 3].color = sprite.GetColor();
-
-		m_IndexBuffer.Add();
-		m_SpritesCount++;
 	}
 
 	void Renderer::Flush()
 	{
 		m_VertexArray.Bind();
-		m_IndexBuffer.Bind();
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
 		glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-		glDrawElements(GL_TRIANGLES, m_IndexBuffer.GetCount(), GL_UNSIGNED_INT, 0);
-		m_SpritesCount = 0;
-		m_IndexBuffer.Clear();
+		glDrawElements(GL_TRIANGLES, m_IndicesCount, GL_UNSIGNED_INT, 0);
+
+		/*m_VerticesCount = 0;
+		m_IndicesCount = 0;
+		m_IndexOffset = 0;*/
 	}
 }
 

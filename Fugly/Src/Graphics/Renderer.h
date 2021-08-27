@@ -1,21 +1,13 @@
 #pragma once
 
-#include "Sprite.h"
 #include "Model.h"
 
 #include "Buffers/Buffers.h"
 
 #define RENDERER_BUFFER_SIZE 1 << 24
 
-
 namespace Fugly
 {
-	struct RendererLayout
-	{
-		glm::vec3 position;
-		glm::vec4 color;
-	};
-
 	class Renderer
 	{
 	public:
@@ -25,16 +17,19 @@ namespace Fugly
 		void Begin();
 		void End();
 
-		void Submit(const Sprite& sprite);
+		void Submit(const Model& model);
 		void Flush();
 
 	private:
 		VertexArray m_VertexArray;
-		IndexBuffer m_IndexBuffer;
 
 		unsigned m_VBO;
+		unsigned m_IBO;
 
-		RendererLayout* m_Buffer;
-		size_t m_SpritesCount;
+		Vertex* m_Buffer;
+		unsigned* m_IndexBuffer;
+
+		size_t m_VerticesCount, m_IndicesCount;
+		size_t m_IndexOffset;
 	};
 }

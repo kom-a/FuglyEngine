@@ -16,10 +16,15 @@ namespace Fugly
 		Model(const std::string& filename);
 		~Model();
 
-	private:
-		void InitMeshes(aiNode* node, const aiScene* scene);
+		void Render();
+
+		inline const std::vector<Mesh>& GetMeshes() const { return m_Meshes; }
 
 	private:
-		std::vector<Mesh*> m_Meshes;
+		void ProcessNode(aiNode* node, const aiScene* scene);
+		Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
+
+	private:
+		std::vector<Mesh> m_Meshes;
 	};
 }

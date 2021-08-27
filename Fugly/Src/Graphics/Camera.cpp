@@ -30,7 +30,10 @@ namespace Fugly
 
 	void Camera::UpdatePosition(float deltaTime)
 	{
-		const float cameraSpeed = 2.5f * deltaTime;
+		float cameraSpeed = 7.5f * deltaTime;
+
+		if (Keyboard::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
+			cameraSpeed *= 3;
 
 		if (Keyboard::IsKeyPressed(GLFW_KEY_W))
 			m_Eye += m_Front * cameraSpeed;

@@ -137,6 +137,11 @@ namespace Fugly
 		SetUniform4f(name, vec.x, vec.y, vec.z, vec.w);
 	}
 
+	void Shader::SetMatrix3(const std::string& name, const glm::mat3& matrix)
+	{
+		glUniformMatrix3fv(GetUniformLocation(name), 1, GL_FALSE, &matrix[0][0]);
+	}
+
 	void Shader::SetMatrix4(const std::string&  name, const glm::mat4& matrix)
 	{
 		glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix[0][0]);

@@ -29,6 +29,7 @@ namespace Fugly
 		void SetUniform3f(const std::string& name, const glm::vec3& vec);
 		void SetUniform4f(const std::string& name, const glm::vec4& vec);
 
+		void SetMatrix3(const std::string& name, const glm::mat3& matrix);
 		void SetMatrix4(const std::string& name, const glm::mat4& matrix);
 
 	private:

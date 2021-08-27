@@ -7,7 +7,7 @@
 namespace Fugly
 {
 	IndexBuffer::IndexBuffer()
-		: m_SpritesCount(0)
+		: m_Count(0)
 	{
 		glGenBuffers(1, &m_IBO);
 		Bind();
@@ -40,30 +40,14 @@ namespace Fugly
 		glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
 	}
 
-	void IndexBuffer::Add()
+	void IndexBuffer::Add(unsigned int index)
 	{
-		int i = m_SpritesCount * 6;
-
-		if ((i + 6) * 6 * sizeof(unsigned int) > INDECIES_BUFFER_SIZE)
-		{
-			LOG_ERROR("Index buffer overflow.");
-			return;
-		}
-
-		int currentIndex = m_SpritesCount * 4;
-		m_Buffer[i + 0] = currentIndex + 0;
-		m_Buffer[i + 1] = currentIndex + 1;
-		m_Buffer[i + 2] = currentIndex + 2;
-		m_Buffer[i + 3] = currentIndex + 0;
-		m_Buffer[i + 4] = currentIndex + 2;
-		m_Buffer[i + 5] = currentIndex + 3;
-
-		m_SpritesCount++;
+		m_Buffer[m_Count++] = index;
 	}
 
 	void IndexBuffer::Clear()
 	{
-		m_SpritesCount = 0;
+		m_Count = 0;
 	}
 }
 

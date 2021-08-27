@@ -35,7 +35,7 @@ int main()
 
 	Renderer renderer;
 
-	glClearColor(0.125f, 0.125f, 0.125f, 1.0f);
+	glClearColor(0.2f, 0.3f, 0.5f, 1.0f);
 
 	float lastTime = glfwGetTime();
 	float unprocessedTime = 0;
@@ -49,41 +49,11 @@ int main()
 
 	Sprite sprite(glm::vec3(0, 0, -50.0f), glm::vec3(50, 50, 0.0f), glm::vec4(0.8f, 0.5f, 0.3f, 1.0f));
 
-	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile("Res/Backpack.fbx", aiProcess_Triangulate | aiProcess_FlipUVs);
-	aiNode* rootNode = scene->mRootNode;
+	Model Teapot("Res/Teapot.obj");
+	Model Bunny("Res/Bunny.obj");
+	Model Dragon("Res/Dragon.ply");
 
-	if (!scene || !rootNode || (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE))
-	{
-		LOG_ERROR("Failed to load model");
-	}
-
-	size_t indexOffset = 0;
-
-	for (size_t i = 0; i < scene->mNumMeshes; i++)
-	{
-		aiMesh* mesh = scene->mMeshes[i];
-		for (size_t i = 0; i < mesh->mNumVertices; i++)
-		{
-			aiVector3D& pos = mesh->mVertices[i];
-			Positions.push_back(pos.x);
-			Positions.push_back(pos.y);
-			Positions.push_back(pos.z);
-		}
-
-		for (size_t i = 0; i < mesh->mNumFaces; i++)
-		{
-			aiFace& face = mesh->mFaces[i];
-			for (size_t i = 0; i < face.mNumIndices; i++)
-			{
-				Indices.push_back(face.mIndices[i] + indexOffset);
-			}
-		}
-
-		indexOffset += mesh->mNumVertices;
-
-	}
-
+	Model Sponza("Res/Sponza.gltf");
 
 	float cubeVertices[] = {
 		-0.5f,  0.5f, 0.5f,	
@@ -126,12 +96,19 @@ int main()
 
 	Shader testShader("Res/TestVertex.glsl", "Res/TestFragment.glsl");
 	glm::mat4 testModel(1.0f);
-	glm::mat4 testProjection = glm::perspective(glm::radians(45.0f), window.Aspect(), 0.01f, 100.0f);
+	glm::mat4 testProjection = glm::perspective(glm::radians(45.0f), window.Aspect(), 0.01f, 1000.0f);
 
-	Camera camera(glm::vec3(0, 0, 8), glm::vec3(0, 0, -1));
+	Camera camera(glm::vec3(0, 0, 15), glm::vec3(0, 0, -1));
 	
 	glEnable(GL_DEPTH_TEST);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	renderer.Begin();
+
+	renderer.Submit(Teapot);
+	renderer.Submit(Sponza);
+
+	renderer.End();
 
 	while (!window.Closed())
 	{
@@ -154,25 +131,50 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		
-		/*shader.Bind();
-		shader.SetMatrix4("u_Model", model);
-		shader.SetMatrix4("u_View", view);
-		shader.SetMatrix4("u_Projection", projection);
-
-		renderer.Begin();
-		renderer.Submit(sprite);
-		renderer.End();
-
-		renderer.Flush();*/
 
 		glBindVertexArray(VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 		texture.Bind(0);
 		testShader.Bind();
-		testShader.SetMatrix4("u_MVP", testProjection * camera.GetViewMatrix() * testModel);
+
+		testModel = glm::scale(glm::mat4(1.0f), glm::vec3(0.025f));
+
+		testShader.SetMatrix4("u_Projection", testProjection);
+		testShader.SetMatrix4("u_View", camera.GetViewMatrix());
+		testShader.SetMatrix4("u_Model", testModel);
+		testShader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
+
+		renderer.Flush();
+
+#if 0
+		testModel = glm::translate(glm::mat4(1.0f), glm::vec3(-7, 1, 0));
+		testModel = glm::rotate(testModel, (float)glfwGetTime() * 1.5f, glm::vec3(0, 1, 0));
+		testModel = glm::scale(testModel, glm::vec3(1.0f));
+		testShader.SetMatrix4("u_Model", testModel);
+		testShader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
+		Teapot.Render();
 		
-		glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, 0);
+		testModel = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
+		testModel = glm::rotate(testModel, (float)glfwGetTime() * 1.0f, glm::vec3(0, 1, 0));
+		testModel = glm::scale(testModel, glm::vec3(25.0f));
+		testShader.SetMatrix4("u_Model", testModel);
+		testShader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
+		Bunny.Render();
+
+		testModel = glm::translate(glm::mat4(1.0f), glm::vec3(7, 0, 0));
+		testModel = glm::rotate(testModel, (float)glfwGetTime() * 0.5f, glm::vec3(0, 1, 0));
+		testModel = glm::scale(testModel, glm::vec3(25.0f));
+		testShader.SetMatrix4("u_Model", testModel);
+		testShader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
+		Dragon.Render();
+
+		testModel = glm::scale(glm::mat4(1.0f), glm::vec3(0.05));
+		testShader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
+		testShader.SetMatrix4("u_Model", testModel);
+		Sponza.Render();
+	
+#endif
 
 		camera.Update(deltaTime);
 		window.Update();

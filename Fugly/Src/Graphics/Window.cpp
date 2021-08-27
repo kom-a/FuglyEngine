@@ -57,7 +57,7 @@ namespace Fugly
 		glfwSetFramebufferSizeCallback(m_Window, framebuffer_size_callback);
 		glfwSetWindowUserPointer(m_Window, this);
 
-		//glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		InitImGui();
 
@@ -95,7 +95,7 @@ namespace Fugly
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		ImGui::ShowDemoWindow();
+		//ImGui::ShowDemoWindow();
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

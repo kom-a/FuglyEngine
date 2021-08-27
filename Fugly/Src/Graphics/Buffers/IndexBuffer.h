@@ -16,14 +16,14 @@ namespace Fugly
 		void Begin();
 		void End();
 
-		void Add();
+		void Add(unsigned int index);
 		void Clear();
 
-		inline size_t GetCount() const { return m_SpritesCount * 6; }
+		inline size_t GetCount() const { return m_Count; }
 
 	private:
 		unsigned m_IBO;
-		size_t m_SpritesCount;
+		size_t m_Count;
 		unsigned int* m_Buffer;
 	};
 }
