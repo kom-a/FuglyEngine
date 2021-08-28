@@ -14,7 +14,8 @@ namespace Fugly
 
 		void Update(float deltaTime);
 
-		inline glm::mat4 GetViewMatrix() { return glm::lookAt(m_Eye, m_Eye + m_Front, glm::vec3(0, 1, 0)); }
+		inline glm::vec3 GetPosition() const { return m_Eye; }
+		inline glm::mat4 GetViewMatrix() const { return glm::lookAt(m_Eye, m_Eye + m_Front, glm::vec3(0, 1, 0)); }
 
 	private:
 		void UpdatePosition(float deltaTime);

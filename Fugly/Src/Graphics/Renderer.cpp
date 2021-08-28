@@ -50,6 +50,8 @@ namespace Fugly
 
 	void Renderer::Submit(const Model& model)
 	{
+		size_t verticesOffset = 0;
+
 		for (const Mesh& mesh : model.GetMeshes())
 		{
 			for (const Vertex& vertex : mesh.GetVertices())
@@ -59,6 +61,10 @@ namespace Fugly
 				m_VerticesCount++;
 			}
 
+ 			const std::vector<Vertex>& vertices = mesh.GetVertices();
+			//memcpy(((Vertex*)m_Buffer + verticesOffset), &vertices[0], vertices.size() * sizeof(Vertex));
+			verticesOffset += vertices.size();
+
 			const std::vector<unsigned int>& meshIndices = mesh.GetIndices();
 			size_t meshIndicesSize = meshIndices.size();
 			for (size_t i = 0; i < meshIndicesSize; i++)
@@ -67,7 +73,7 @@ namespace Fugly
 				m_IndicesCount++;
 			}
 
-			m_IndexOffset += mesh.GetVertices().size();
+			m_IndexOffset +=vertices.size();
 		}
 	}
 
@@ -78,9 +84,9 @@ namespace Fugly
 		glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 		glDrawElements(GL_TRIANGLES, m_IndicesCount, GL_UNSIGNED_INT, 0);
 
-		/*m_VerticesCount = 0;
+		m_VerticesCount = 0;
 		m_IndicesCount = 0;
-		m_IndexOffset = 0;*/
+		m_IndexOffset = 0;
 	}
 }
 

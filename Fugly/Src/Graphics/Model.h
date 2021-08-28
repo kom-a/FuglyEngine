@@ -22,7 +22,7 @@ namespace Fugly
 
 	private:
 		void ProcessNode(aiNode* node, const aiScene* scene);
-		Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
+		Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene, aiMatrix4x4 transformation);
 
 	private:
 		std::vector<Mesh> m_Meshes;

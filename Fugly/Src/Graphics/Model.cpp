@@ -8,7 +8,8 @@ namespace Fugly
 	Model::Model(const std::string& filename)
 	{
 		Assimp::Importer importer;
-		const aiScene* scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals);
+		const aiScene* scene = importer.ReadFile(filename, 
+			aiProcess_Triangulate | aiProcess_GenNormals);
 		if (!scene || !scene->mRootNode || (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE))
 		{
 			LOG_ERROR("Failed to load model \"{0}\"", filename);
@@ -33,7 +34,7 @@ namespace Fugly
 		for (size_t i = 0; i < node->mNumMeshes; i++)
 		{
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-			m_Meshes.push_back(ProcessMesh(mesh, scene));
+			m_Meshes.push_back(ProcessMesh(mesh, scene, node->mTransformation));
 		}
 
 		for (size_t i = 0; i < node->mNumChildren; i++)
@@ -42,7 +43,7 @@ namespace Fugly
 		}
 	}
 
-	Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
+	Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, aiMatrix4x4 transformation)
 	{
 		std::vector<Vertex> vertices;
 		std::vector<unsigned int> indices;
@@ -50,23 +51,35 @@ namespace Fugly
 		for (size_t i = 0; i < mesh->mNumVertices; i++)
 		{
 			Vertex vertex;
-			glm::vec3 vector;
-			vector.x = mesh->mVertices[i].x;
-			vector.y = mesh->mVertices[i].y;
-			vector.z = mesh->mVertices[i].z;
-			vertex.position = vector;
 
-			vector.x = mesh->mNormals[i].x;
-			vector.y = mesh->mNormals[i].y;
-			vector.z = mesh->mNormals[i].z;
-			vertex.normal = vector;
+			aiVector3D position = transformation * mesh->mVertices[i];
+			aiVector3D normal = (transformation * mesh->mNormals[i]).Normalize();
+			
+			vertex.position.x = position.x;
+			vertex.position.y = position.y;
+			vertex.position.z = position.z;
+
+			vertex.normal.x = normal.x;
+			vertex.normal.y = normal.y;
+			vertex.normal.z = normal.z;
+
+			if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
+			{
+				glm::vec2 vec;
+				vec.x = mesh->mTextureCoords[0][i].x;
+				vec.y = mesh->mTextureCoords[0][i].y;
+				
+				vertex.texCoords = vec;
+			}
+			else
+				vertex.texCoords = glm::vec2(0.0f, 0.0f);
 
 			vertices.push_back(vertex);
 		}
 
 		for (size_t i = 0; i < mesh->mNumFaces; i++)
 		{
-			aiFace face = mesh->mFaces[i];
+			aiFace face = mesh->mFaces[i]; 
 			for (unsigned int j = 0; j < face.mNumIndices; j++)
 				indices.push_back(face.mIndices[j]);
 		}
