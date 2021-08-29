@@ -27,7 +27,7 @@ int main()
 
 	Window window(1280, 720, "Fugly");
 
-	Renderer renderer;
+	//Renderer renderer;
 
 	glClearColor(0.2f, 0.3f, 0.5f, 1.0f);
 
@@ -39,31 +39,27 @@ int main()
 	glm::mat4 view(1.0f);
 	glm::mat4 projection = glm::perspective(glm::radians(90.0f), window.Aspect(), 0.1f, 100.0f);
 
-	float speed = 2.0f;
+  	Model Backpack("Res/Models/Backpack.obj");
+	// Model Sponza("Res/Models/sponza.obj");
 
-	Sprite sprite(glm::vec3(0, 0, -50.0f), glm::vec3(50, 50, 0.0f), glm::vec4(0.8f, 0.5f, 0.3f, 1.0f));
-
-  	Model Backpack("Res/Models/Backpack.fbx");
-	Model Sponza("Res/Models/Sponza.gltf");
-
-	/*Model Teapot("Res/Models/Teapot.obj");
+	Model Teapot("Res/Models/Teapot.obj");
 	Model Bunny("Res/Models/Bunny.obj");
-	Model Dragon("Res/Models/Dragon.ply");*/
-	
+	Model Dragon("Res/Models/Dragon.ply");
 
 	Texture texture("Res/Models/1001_albedo.jpg", 0);
-
 	texture.Bind(0);
 
 	Shader shader("Res/Shaders/TestVertex.glsl", "Res/Shaders/TestFragment.glsl");
 	glm::mat4 testModel(1.0f);
 	glm::mat4 testProjection = glm::perspective(glm::radians(45.0f), window.Aspect(), 0.01f, 1000.0f);
 
-	Camera camera(glm::vec3(0, 2.5, 20), glm::vec3(0, 0, -1));
+	Camera camera(glm::vec3(0, 0, 30));
 	
 	glEnable(GL_DEPTH_TEST);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+
+	LOG_GL_ERRORS();
 	while (!window.Closed())
 	{
 		float currentTime = (float)glfwGetTime();
@@ -94,6 +90,8 @@ int main()
 		shader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
 		shader.SetUniform3f("u_CameraPos", camera.GetPosition());
 
+		LOG_GL_ERRORS();
+
 #if 0
 		testModel = glm::translate(glm::mat4(1.0f), glm::vec3(-7, 1, 0));
 		testModel = glm::rotate(testModel, (float)glfwGetTime() * 1.5f, glm::vec3(0, 1, 0));
@@ -102,7 +100,6 @@ int main()
 		shader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
 		Teapot.Render();
 		
-
 		testModel = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
 		testModel = glm::rotate(testModel, (float)glfwGetTime() * 1.0f, glm::vec3(0, 1, 0));
 		testModel = glm::scale(testModel, glm::vec3(25.0f));
@@ -118,18 +115,66 @@ int main()
 		Dragon.Render();
 #endif
 
-		testModel = glm::translate(glm::mat4(1.0f), glm::vec3(14, 0, 0));
+		/*testModel = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
 		testModel = glm::rotate(testModel, (float)glfwGetTime() * 0.5f, glm::vec3(0, 1, 0));
 		testModel = glm::scale(testModel, glm::vec3(0.02f));
 		shader.SetMatrix4("u_Model", testModel);
 		shader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
-		Backpack.Render();
+		Backpack.Render();*/
 
+		const int count = 7;
+		for (int i = 0; i < count; i++)
+		{
+			float offset = 6.0f;
+			texture.Bind(0);
+			testModel = glm::translate(glm::mat4(1.0f), glm::vec3(offset * i - offset * count / 2.0f + offset / 2.0f, 2, 0));
+			testModel = glm::rotate(testModel, (float)glfwGetTime() * 0.5f * (i + 1), glm::vec3(0, 1, 0));
+			testModel = glm::scale(testModel, glm::vec3(1.0f));
+			shader.SetMatrix4("u_Model", testModel);
+			shader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
+			Backpack.Render();
+		}
 
-		//testModel = glm::scale(glm::mat4(1.0f), glm::vec3(1));
-		//shader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
-		//shader.SetMatrix4("u_Model", testModel);
-		//Sponza.Render();
+		for (int i = 0; i < count; i++)
+		{
+			float offset = 6.0f;
+			texture.Bind(0);
+			testModel = glm::translate(glm::mat4(1.0f), glm::vec3(offset * i - offset * count / 2.0f + offset / 2.0f, 6, 0));
+			testModel = glm::rotate(testModel, (float)glfwGetTime() * 0.5f * (i + 1), glm::vec3(0, 1, 0));
+			testModel = glm::scale(testModel, glm::vec3(0.75f));
+			shader.SetMatrix4("u_Model", testModel);
+			shader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
+			Teapot.Render();
+		}
+
+		for (int i = 0; i < count; i++)
+		{
+			float offset = 6.0f;
+			texture.Bind(0);
+			testModel = glm::translate(glm::mat4(1.0f), glm::vec3(offset * i - offset * count / 2.0f + offset / 2.0f, -4, 0));
+			testModel = glm::rotate(testModel, (float)glfwGetTime() * 0.5f * (i + 1), glm::vec3(0, 1, 0));
+			testModel = glm::scale(testModel, glm::vec3(20.0f));
+			shader.SetMatrix4("u_Model", testModel);
+			shader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
+			Bunny.Render();
+		}
+
+		for (int i = 0; i < count; i++)
+		{
+			float offset = 6.0f;
+			texture.Bind(0);
+			testModel = glm::translate(glm::mat4(1.0f), glm::vec3(offset * i - offset * count / 2.0f + offset / 2.0f, -10, 0));
+			testModel = glm::rotate(testModel, (float)glfwGetTime() * 0.5f * (i + 1), glm::vec3(0, 1, 0));
+			testModel = glm::scale(testModel, glm::vec3(20.0f));
+			shader.SetMatrix4("u_Model", testModel);
+			shader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
+			Dragon.Render();
+		}
+
+		/*testModel = glm::scale(glm::mat4(1.0f), glm::vec3(0.1));
+		shader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
+		shader.SetMatrix4("u_Model", testModel);
+		Sponza.Render();*/
 
 		camera.Update(deltaTime);
 		window.Update();

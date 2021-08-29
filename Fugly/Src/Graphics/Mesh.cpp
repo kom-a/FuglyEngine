@@ -30,7 +30,7 @@ namespace Fugly
 
 	Mesh::~Mesh()
 	{
-
+		
 	}
 
 	void Mesh::Render()

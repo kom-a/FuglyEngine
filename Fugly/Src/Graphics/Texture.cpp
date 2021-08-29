@@ -12,7 +12,7 @@ namespace Fugly
 	Texture::Texture(const std::string& filename, unsigned int unit)
 	{
 		glGenTextures(1, &m_TexutreID);
-		Bind(unit);
+		Bind(unit); 
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);

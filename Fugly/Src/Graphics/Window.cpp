@@ -51,6 +51,8 @@ namespace Fugly
 			return;
 		}
 
+		glfwSwapInterval(0);
+
 		glfwSetCursorPosCallback(m_Window, cursor_position_callback);
 		glfwSetMouseButtonCallback(m_Window, mouse_button_callback);
 		glfwSetKeyCallback(m_Window, key_callback);
@@ -88,7 +90,6 @@ namespace Fugly
 
 	void Window::Update()
 	{
-		LOG_GL_ERRORS();
 		glfwPollEvents();
 
 		ImGui_ImplOpenGL3_NewFrame();

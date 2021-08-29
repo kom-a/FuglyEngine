@@ -1,5 +1,7 @@
 #include "Model.h"
 
+#include <GL/glew.h>
+
 #include "../Utils/Log.h"
 
 
@@ -9,7 +11,7 @@ namespace Fugly
 	{
 		Assimp::Importer importer;
 		const aiScene* scene = importer.ReadFile(filename, 
-			aiProcess_Triangulate | aiProcess_GenNormals);
+			aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_FlipUVs);
 		if (!scene || !scene->mRootNode || (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE))
 		{
 			LOG_ERROR("Failed to load model \"{0}\"", filename);
@@ -19,14 +21,15 @@ namespace Fugly
 		ProcessNode(scene->mRootNode, scene);
 	}
 
+
 	Model::~Model()
 	{
 	}
 
 	void Model::Render()
 	{
-		for (Mesh& m : m_Meshes)
-			m.Render();
+		for (Mesh& mesh : m_Meshes)
+			mesh.Render();
 	}
 
 	void Model::ProcessNode(aiNode* node, const aiScene* scene)
@@ -52,8 +55,8 @@ namespace Fugly
 		{
 			Vertex vertex;
 
-			aiVector3D position = transformation * mesh->mVertices[i];
-			aiVector3D normal = (transformation * mesh->mNormals[i]).Normalize();
+			aiVector3D position = mesh->mVertices[i];
+			aiVector3D normal = (mesh->mNormals[i]).Normalize();
 			
 			vertex.position.x = position.x;
 			vertex.position.y = position.y;
@@ -79,7 +82,7 @@ namespace Fugly
 
 		for (size_t i = 0; i < mesh->mNumFaces; i++)
 		{
-			aiFace face = mesh->mFaces[i]; 
+			aiFace face = mesh->mFaces[i];
 			for (unsigned int j = 0; j < face.mNumIndices; j++)
 				indices.push_back(face.mIndices[j]);
 		}

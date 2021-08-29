@@ -4,9 +4,9 @@
 
 namespace Fugly
 {
-	Camera::Camera(const glm::vec3& eye, const glm::vec3& front)
+	Camera::Camera(const glm::vec3& eye)
 		: m_Eye(eye),
-		m_Front(front),
+		m_Front(glm::vec3(0, 0, -1)),
 		m_Up(glm::vec3(0, 1, 0)),
 		m_Pitch(0.0f),
 		m_Yaw(-90.0f),

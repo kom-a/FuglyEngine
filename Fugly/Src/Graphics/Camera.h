@@ -9,7 +9,7 @@ namespace Fugly
 	class Camera
 	{
 	public:
-		Camera(const glm::vec3& eye, const glm::vec3& front);
+		Camera(const glm::vec3& eye);
 		~Camera();
 
 		void Update(float deltaTime);
