@@ -22,7 +22,8 @@ namespace Fugly
 		friend void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
 	private:
-		static bool s_FirstMouse;
+		friend class Camera;
+		static bool s_MouseUsed;
 	};
 
 }

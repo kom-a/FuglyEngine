@@ -8,6 +8,22 @@
 
 namespace Fugly
 {
+	Texture::Texture(int width, int height, unsigned int unit)
+		: m_Path(std::string())
+	{
+		glGenTextures(1, &m_TexutreID);
+		Bind(unit);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		Unbind();
+	}
 
 	Texture::Texture(const std::string& filename, unsigned int unit)
 	{
@@ -33,8 +49,10 @@ namespace Fugly
 			LOG_ERROR("Failed to load texture \"{0}\"", filename);
 		}
 		stbi_image_free(data);
-	}
+		Unbind();
 
+		m_Path = filename;
+	}
 
 	Texture::~Texture()
 	{

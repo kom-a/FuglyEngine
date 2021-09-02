@@ -51,6 +51,13 @@ namespace Fugly
 
 	void Camera::UpdateAngles(float deltaTime)
 	{
+		if (Mouse::s_MouseUsed && m_FirstMouse)
+		{
+			m_LastMouse = glm::vec2(Mouse::GetX(), Mouse::GetY());
+			m_FirstMouse = false;
+			return;
+		}
+		
 		glm::vec2 mouse = glm::vec2(Mouse::GetX(), Mouse::GetY());
 
 		glm::vec2 offset = mouse - m_LastMouse;

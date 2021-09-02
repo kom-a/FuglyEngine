@@ -18,18 +18,29 @@ namespace Fugly
 			return;
 		}
 
+		// Save model's directory to load textures later
+		m_Directory = filename.substr(0, filename.find_last_of('/') + 1); // +1 to include slash in "m_Directory"
+
 		ProcessNode(scene->mRootNode, scene);
 	}
 
 
 	Model::~Model()
 	{
+		for (int i = 0; i < m_Textures.size(); i++)
+		{
+			delete m_Textures[i];
+		}
 	}
 
 	void Model::Render()
 	{
 		for (Mesh& mesh : m_Meshes)
+		{
+			m_Textures[mesh.GetDiffuseTextureIndex()]->Bind(0);
 			mesh.Render();
+		}
+			
 	}
 
 	void Model::ProcessNode(aiNode* node, const aiScene* scene)
@@ -76,7 +87,7 @@ namespace Fugly
 			}
 			else
 				vertex.texCoords = glm::vec2(0.0f, 0.0f);
-
+			
 			vertices.push_back(vertex);
 		}
 
@@ -87,7 +98,43 @@ namespace Fugly
 				indices.push_back(face.mIndices[j]);
 		}
 
-		return Mesh(vertices, indices);
+		size_t textureIndex = 0;
+		if (mesh->mMaterialIndex >= 0)
+		{
+			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+
+			textureIndex = LoadMaterialTexutres(material, aiTextureType_DIFFUSE);
+		}
+
+		return Mesh(vertices, indices, textureIndex);
+	}
+
+	size_t Model::LoadMaterialTexutres(const aiMaterial* material, aiTextureType textureType)
+	{
+		for (size_t i = 0; i < material->GetTextureCount(textureType); i++)
+		{
+			aiString str;			
+			material->GetTexture(textureType, i, &str);
+			std::string textureFilename = m_Directory + str.C_Str();
+
+			bool skipLoading = false;
+			for(size_t j = 0; j < m_Textures.size(); j++)
+			{
+				if (m_Textures[j]->GetPath() == textureFilename)
+				{
+					m_Textures.push_back(m_Textures[j]);
+					skipLoading = true;
+					break;
+				}
+			}
+
+			if (skipLoading) continue;
+
+			m_Textures.push_back(new Texture(textureFilename, 0));
+			LOG_DEBUG("{0} texture loaded \"{1}\"", textureType, textureFilename);
+		}
+
+		return m_Textures.size() - 1;
 	}
 }
 

@@ -8,7 +8,7 @@ in vec2 v_TexCoords;
 
 uniform vec3 u_CameraPos;
 
-uniform sampler2D sampler;
+uniform sampler2D diffuseSampler;
 
 void main()
 {
@@ -17,15 +17,17 @@ void main()
 	vec3 viewDir = normalize(u_CameraPos - v_FragPos.xyz );
 	vec3 reflectDir = reflect(-lightDir, v_Normal);
 
-	float ambient = 0.1f;
-	float diffuse = max(0.0f, dot(v_Normal, lightDir));
-	float specularStrenth = 0.5f;
-	float specular = pow(max(dot(viewDir, reflectDir), 0.0), 64);
+	vec3 diffuseColor = texture(diffuseSampler, v_TexCoords).xyz;
+	//vec3 specularColor = texture(specularSampler, v_TexCoords).xyz;
+	// vec3 diffuseColor = vec3(0.8f, 0.2f, 0.1f);
+	vec3 specularColor = vec3(0.3f);
 
-	vec3 color = texture(sampler, v_TexCoords).xyz;
-	// vec3 color = vec3(0.8f, 0.5f, 0.3f);
+	vec3 ambient = diffuseColor * 0.1f;
+	vec3 diffuse = diffuseColor * max(0.0f, dot(v_Normal, lightDir));
+	vec3 specular = specularColor * pow(max(dot(viewDir, reflectDir), 0.0), 64);
+	
 
-	vec3 result = (ambient + diffuse + specular) * color;
+	vec3 result = ambient + diffuse + specular;
 
 	FragColor = vec4(result, 1.0f);
 }
