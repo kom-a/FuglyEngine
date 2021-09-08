@@ -41,12 +41,12 @@ int main()
 	glm::mat4 view(1.0f);
 	glm::mat4 projection = glm::perspective(glm::radians(90.0f), window.Aspect(), 0.1f, 100.0f);
 
-	// TODO: Render textured sponza scene(using assimp's materials and stuff like that)
 	Model Sponza("Res/Models/sponza/sponza.obj");
+	Model Backpack("Res/Models/Backpack.obj");
 
 	Shader shader("Res/Shaders/TestVertex.glsl", "Res/Shaders/TestFragment.glsl");
 	glm::mat4 testModel(1.0f);
-	glm::mat4 testProjection = glm::perspective(glm::radians(45.0f), window.Aspect(), 0.01f, 1000.0f);
+	glm::mat4 testProjection = glm::perspective(glm::radians(45.0f), window.Aspect(), 0.01f, 100000.0f);
 
 	Camera camera(glm::vec3(0, 0, 10));
 	
@@ -114,13 +114,21 @@ int main()
 #endif
 		
 		shader.SetUniform1i("diffuseSampler", 0);
+		shader.SetUniform1i("specularSampler", 1);
 
 		testModel = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
-		testModel = glm::rotate(testModel, (float)glfwGetTime() * 0.25f * 0, glm::vec3(0, 1, 0));
-		testModel = glm::scale(testModel, glm::vec3(0.1f));
+		testModel = glm::rotate(testModel, 0.0f, glm::vec3(0, 1, 0));
+		testModel = glm::scale(testModel, glm::vec3(0.05f));
 		shader.SetMatrix4("u_Model", testModel);
 		shader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
 		Sponza.Render();
+
+		testModel = glm::translate(glm::mat4(1.0f), glm::vec3(0, 1.55f, 0));
+		testModel = glm::rotate(testModel, float(glfwGetTime()), glm::vec3(0, 1, 0));
+		testModel = glm::scale(testModel, glm::vec3(1.0f));
+		shader.SetMatrix4("u_Model", testModel);
+		shader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
+		Backpack.Render();
 
 		camera.Update(deltaTime);
 		window.Update();

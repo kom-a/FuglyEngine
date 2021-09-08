@@ -24,7 +24,7 @@ namespace Fugly
 	private:
 		void ProcessNode(aiNode* node, const aiScene* scene);
 		Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene, aiMatrix4x4 transformation);
-		size_t LoadMaterialTexutres(const aiMaterial* material, aiTextureType textureType);
+		size_t LoadMaterialTexutre(const aiMaterial* material, aiTextureType textureType);
 
 	private:
 		std::vector<Mesh> m_Meshes;

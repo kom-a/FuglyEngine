@@ -9,6 +9,7 @@ in vec2 v_TexCoords;
 uniform vec3 u_CameraPos;
 
 uniform sampler2D diffuseSampler;
+uniform sampler2D specularSampler;
 
 void main()
 {
@@ -18,9 +19,7 @@ void main()
 	vec3 reflectDir = reflect(-lightDir, v_Normal);
 
 	vec3 diffuseColor = texture(diffuseSampler, v_TexCoords).xyz;
-	//vec3 specularColor = texture(specularSampler, v_TexCoords).xyz;
-	// vec3 diffuseColor = vec3(0.8f, 0.2f, 0.1f);
-	vec3 specularColor = vec3(0.3f);
+	vec3 specularColor = texture(specularSampler, v_TexCoords).xyz;
 
 	vec3 ambient = diffuseColor * 0.1f;
 	vec3 diffuse = diffuseColor * max(0.0f, dot(v_Normal, lightDir));

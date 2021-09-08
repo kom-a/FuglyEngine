@@ -5,10 +5,11 @@
 
 namespace Fugly
 {
-	Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, size_t diffuseTextureIndex)
+	Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, size_t diffuseTextureIndex, size_t specularTextureIndex)
 		: m_Vertices(vertices),
 		m_Indices(indices),
-		m_DiffuseTextureIndex(diffuseTextureIndex)
+		m_DiffuseTextureIndex(diffuseTextureIndex),
+		m_SpecularTextureIndex(specularTextureIndex)
 	{
 		glGenVertexArrays(1, &VAO);
 		glBindVertexArray(VAO);

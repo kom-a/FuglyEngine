@@ -38,6 +38,7 @@ namespace Fugly
 		for (Mesh& mesh : m_Meshes)
 		{
 			m_Textures[mesh.GetDiffuseTextureIndex()]->Bind(0);
+			m_Textures[mesh.GetSpecularTextureIndex()]->Bind(1);
 			mesh.Render();
 		}
 			
@@ -98,44 +99,33 @@ namespace Fugly
 				indices.push_back(face.mIndices[j]);
 		}
 
-		size_t textureIndex = 0;
+		size_t diffuseTextureIndex = 0;
+		size_t specularTextureIndex = 0;
 		if (mesh->mMaterialIndex >= 0)
 		{
 			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-
-			textureIndex = LoadMaterialTexutres(material, aiTextureType_DIFFUSE);
+			
+			diffuseTextureIndex = LoadMaterialTexutre(material, aiTextureType_DIFFUSE);
+			specularTextureIndex = LoadMaterialTexutre(material, aiTextureType_SPECULAR);
 		}
 
-		return Mesh(vertices, indices, textureIndex);
+		return Mesh(vertices, indices, diffuseTextureIndex, specularTextureIndex);
 	}
 
-	size_t Model::LoadMaterialTexutres(const aiMaterial* material, aiTextureType textureType)
+	size_t Model::LoadMaterialTexutre(const aiMaterial* material, aiTextureType textureType)
 	{
-		for (size_t i = 0; i < material->GetTextureCount(textureType); i++)
+		aiString str;
+		material->GetTexture(textureType, 0, &str);
+		std::string textureFilename = m_Directory + str.C_Str();
+
+		for(size_t j = 0; j < m_Textures.size(); j++)
 		{
-			aiString str;			
-			material->GetTexture(textureType, i, &str);
-			std::string textureFilename = m_Directory + str.C_Str();
-
-			bool skipLoading = false;
-			for(size_t j = 0; j < m_Textures.size(); j++)
-			{
-				if (m_Textures[j]->GetPath() == textureFilename)
-				{
-					m_Textures.push_back(m_Textures[j]);
-					skipLoading = true;
-					break;
-				}
-			}
-
-			if (skipLoading) continue;
-
-			m_Textures.push_back(new Texture(textureFilename, 0));
-			LOG_DEBUG("{0} texture loaded \"{1}\"", textureType, textureFilename);
+			if (m_Textures[j]->GetPath() == textureFilename)
+				return j;
 		}
+
+		m_Textures.push_back(new Texture(textureFilename, 0));
 
 		return m_Textures.size() - 1;
 	}
 }
-
-
