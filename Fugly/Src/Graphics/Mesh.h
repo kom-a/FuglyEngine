@@ -32,9 +32,9 @@ namespace Fugly
 		size_t m_DiffuseTextureIndex;
 		size_t m_SpecularTextureIndex;
 
-		unsigned int VAO;
-		unsigned int VBO;
-		unsigned int IBO;
+		unsigned int m_VAO;
+		unsigned int m_VBO;
+		unsigned int m_IBO;
 	};
 
 }

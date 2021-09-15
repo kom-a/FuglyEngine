@@ -42,7 +42,7 @@ namespace Fugly
 		if (data)
 		{
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-			//glGenerateMipmap(GL_TEXTURE_2D);
+			// glGenerateMipmap(GL_TEXTURE_2D);
 
 			LOG_DEBUG("Texture loaded \"{0}\"", filename);
 		}

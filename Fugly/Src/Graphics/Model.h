@@ -30,5 +30,12 @@ namespace Fugly
 		std::vector<Mesh> m_Meshes;
 		std::vector<Texture*> m_Textures;
 		std::string m_Directory;
+
+		std::vector<Vertex> m_Vertices;
+		std::vector<unsigned int> m_Indices;
+
+		unsigned int m_VAO;
+		unsigned int m_VBO;
+		unsigned int m_IBO;
 	};
 }

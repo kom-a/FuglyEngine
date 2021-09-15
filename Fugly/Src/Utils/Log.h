@@ -29,4 +29,4 @@ namespace Fugly
 
 #define LOG_GL_ERRORS() {int OpenGLError = glGetError();\
 								if(OpenGLError)\
-									Log::GetLogger()->debug("An OpenGL error occured: {0}", OpenGLError);}
+									Log::GetLogger()->error("An OpenGL error occured: {0}", OpenGLError);}
