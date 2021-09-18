@@ -11,8 +11,8 @@ namespace Fugly
 		Texture(const std::string& filename, unsigned int unit);
 		~Texture();
 
-		void Bind(unsigned int unit);
-		void Unbind();
+		void Bind(unsigned int unit) const;
+		void Unbind() const;
 
 		inline unsigned GetID() const { return m_TexutreID; }
 		inline std::string GetPath() const { return m_Path; }

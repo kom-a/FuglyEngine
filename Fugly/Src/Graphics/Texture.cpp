@@ -61,13 +61,13 @@ namespace Fugly
 		glDeleteTextures(1, &m_TexutreID);
 	}
 
-	void Texture::Bind(unsigned int unit)
+	void Texture::Bind(unsigned int unit) const
 	{
 		glActiveTexture(GL_TEXTURE0 + unit);
 		glBindTexture(GL_TEXTURE_2D, m_TexutreID);
 	}
 
-	void Texture::Unbind()
+	void Texture::Unbind() const
 	{
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}

@@ -104,6 +104,10 @@ namespace Fugly
 			vertex.normal.y = normal.y;
 			vertex.normal.z = normal.z;
 
+			vertex.color.r = 1.0f;
+			vertex.color.g = 1.0f;
+			vertex.color.b = 1.0f;
+
 			if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
 			{
 				glm::vec2 vec;
@@ -135,8 +139,6 @@ namespace Fugly
 			specularTextureIndex = LoadMaterialTexutre(material, aiTextureType_SPECULAR);
 		}
 
-		// TODO: Complete batching
-		
 		for (size_t i = 0; i < indices.size(); i++)
 		{
 			m_Indices.push_back(indices[i] + m_Vertices.size());

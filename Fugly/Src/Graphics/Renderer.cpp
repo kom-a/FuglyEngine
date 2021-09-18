@@ -69,7 +69,7 @@ namespace Fugly
 			size_t meshIndicesSize = meshIndices.size();
 			for (size_t i = 0; i < meshIndicesSize; i++)
 			{
-				m_IndexBuffer[m_IndicesCount] = meshIndices[i] + m_IndexOffset;
+				m_IndexBuffer[m_IndicesCount] = (unsigned int)(meshIndices[i] + m_IndexOffset);
 				m_IndicesCount++;
 			}
 
@@ -82,7 +82,7 @@ namespace Fugly
 		m_VertexArray.Bind();
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
 		glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-		glDrawElements(GL_TRIANGLES, m_IndicesCount, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, (int)m_IndicesCount, GL_UNSIGNED_INT, 0);
 
 		m_VerticesCount = 0;
 		m_IndicesCount = 0;
