@@ -1,43 +1,24 @@
-#include "Cube.h"
+#include "Plane.h"
 
 #include <GL/glew.h>
 
 namespace Fugly
 {
-	Cube::Cube(const glm::vec3& color)
-		: m_Color(color)
+	Plane::Plane()
+		: m_Texture(Texture("Res/Plane.png", 0))
 	{
 		m_VAO.Bind();
 
-		// normal component
-		float n = 1.0f / std::sqrt(3.0f);
-
 		// position3 normal3 texCoords2 color3
 		float vertices[] = {
-			-0.5f, -0.5f, 0.5f,		-n, -n,  n,		0.0f, 0.0f,		color.r, color.g, color.b,
-			 0.5f, -0.5f, 0.5f,		 n, -n,  n,		0.0f, 0.0f,		color.r, color.g, color.b,
-			 0.5f,  0.5f, 0.5f,		 n,  n,  n,		0.0f, 0.0f,		color.r, color.g, color.b,
-			-0.5f,  0.5f, 0.5f,		-n,  n,  n,		0.0f, 0.0f,		color.r, color.g, color.b,
-
-			-0.5f, -0.5f, -0.5f,	-n, -n, -n,		0.0f, 0.0f,		color.r, color.g, color.b,
-			 0.5f, -0.5f, -0.5f,	 n, -n, -n,		0.0f, 0.0f,		color.r, color.g, color.b,
-			 0.5f,  0.5f, -0.5f,	 n,  n, -n,		0.0f, 0.0f,		color.r, color.g, color.b,
-			-0.5f,  0.5f, -0.5f,	-n,  n, -n,		0.0f, 0.0f,		color.r, color.g, color.b,
+			-0.5f, -0.5f, 0.5f,		0.0f,  1.0f, 0.0f,		0.0f, 0.0f,		1.0f, 1.0f, 1.0f,
+			 0.5f, -0.5f, 0.5f,		0.0f,  1.0f, 0.0f,		25.0f, 0.0f,		1.0f, 1.0f, 1.0f,
+			-0.5f, -0.5f, -0.5f,	0.0f,  1.0f, 0.0f,		0.0f, 25.0f,		1.0f, 1.0f, 1.0f,
+			 0.5f, -0.5f, -0.5f,	0.0f,  1.0f, 0.0f,		25.0f, 25.0f,		1.0f, 1.0f, 1.0f,
 		};
 
 		unsigned int indices[] = {
-			// front
-			0, 1, 2, 0, 2, 3,
-			// back
-			4, 5, 6, 4, 6, 7,
-			// left
-			0, 3, 4, 3, 4, 7,
-			// right 
-			1, 5, 6, 1, 6, 2,
-			// up
-			3, 2, 6, 6, 7, 3,
-			// down
-			0, 4, 5, 1, 0, 5,
+			0, 1, 2, 1, 3, 2
 		};
 
 		glGenBuffers(1, &m_VBO);
@@ -58,18 +39,18 @@ namespace Fugly
 		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (const void*)(8 * sizeof(float)));
 	}
 
-	Cube::~Cube()
+	Plane::~Plane()
 	{
-		glDeleteBuffers(1, &m_VBO);
-		glDeleteBuffers(1, &m_IBO);
+
 	}
 
-	void Cube::Render()
+	void Plane::Render()
 	{
 		m_VAO.Bind();
 		glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-	}
+		m_Texture.Bind(0);
 
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	}
 }

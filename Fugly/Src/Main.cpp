@@ -13,6 +13,7 @@
 #include "Graphics/Camera.h"
 #include "Graphics/Model.h"
 #include "Graphics/Primitives/Cube.h"
+#include "Graphics/Primitives/Plane.h"
 #include "Utils/Log.h"
 #include "Input/Input.h"
 
@@ -40,6 +41,10 @@ int main()
 	//Model Sponza("Res/Models/sponza/sponza.obj");
 	Model Backpack("Res/Models/Backpack.obj");
 	Cube cube(glm::vec3(0.1));
+	Plane plane;
+
+	//Model Sponza("Res/Models/sponza/sponza.obj");
+
 
 	Shader shader("Res/Shaders/TestVertex.glsl", "Res/Shaders/TestFragment.glsl");
 	Shader singleColorShader("Res/Shaders/TestVertex.glsl", "Res/Shaders/FragmentShader.glsl");
@@ -52,7 +57,42 @@ int main()
 
 	glEnable(GL_STENCIL_TEST);
 	glDepthFunc(GL_LESS);
-	
+
+	// position - 3, texCoords - 2
+	float grassVertices[] = {
+		-0.5f, -0.5f, 0.0f,		0.0f, 0.0f, 
+		 0.5f, -0.5f, 0.0f,		1.0f, 0.0f,
+		 0.5f,  0.5f, 0.0f,		1.0f, 1.0f,
+		-0.5f,  0.5f, 0.0f,		0.0f, 1.0f,
+	};
+
+	unsigned int grassIndices[] = {
+		0, 1, 2, 0, 2, 3
+	};
+
+	VertexArray VAO;
+	VAO.Bind();
+	unsigned VBO;
+	glGenBuffers(1, &VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(grassVertices), grassVertices, GL_STATIC_DRAW);
+
+	unsigned IBO;
+	glGenBuffers(1, &IBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(grassIndices), grassIndices, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (const void*)(0 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (const void*)(3 * sizeof(float)));
+
+	Texture grassTexture("Res/Window.png", 0);
+	Shader grassShader("Res/Shaders/GrassVertex.glsl", "Res/Shaders/GrassFragment.glsl");
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	while (!window.Closed())
 	{
 		float currentTime = (float)glfwGetTime();
@@ -96,12 +136,33 @@ int main()
 		testModel = glm::scale(testModel, glm::vec3(25, 0.25, 25));
 		shader.SetMatrix4("u_Model", testModel);
 		shader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
-		cube.Render();
+		plane.Render();
 
 		testModel = glm::translate(glm::mat4(1.0f), glm::vec3(0, 1.75, 0));
+		testModel = glm::rotate(testModel, float(glfwGetTime()), glm::vec3(0, 1, 0));
 		shader.SetMatrix4("u_Model", testModel);
 		shader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
 		Backpack.Render();
+
+		//testModel = glm::scale(glm::mat4(1.0f), glm::vec3(0.01f));
+		//shader.SetMatrix4("u_Model", testModel);
+		//shader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
+		//Sponza.Render();
+
+		VAO.Bind();
+		grassTexture.Bind(0);
+		grassShader.Bind();
+
+		testModel = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 2.0f, 5.0f));
+		testModel = glm::scale(testModel, glm::vec3(5));
+
+		grassShader.SetMatrix4("u_Projection", testProjection);
+		grassShader.SetMatrix4("u_View", camera.GetViewMatrix());
+		grassShader.SetMatrix4("u_Model", testModel);
+		grassShader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		
 
 		camera.Update(deltaTime);
 		window.Update();

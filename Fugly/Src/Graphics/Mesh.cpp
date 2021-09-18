@@ -40,8 +40,8 @@ namespace Fugly
 	void Mesh::Render()
 	{
 		glBindVertexArray(m_VAO);
-		glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
+		/*glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);*/
 
 		glDrawElements(GL_TRIANGLES, (int)m_Indices.size(), GL_UNSIGNED_INT, 0);
 	}
