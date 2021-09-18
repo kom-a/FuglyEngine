@@ -59,7 +59,7 @@ namespace Fugly
 		glfwSetFramebufferSizeCallback(m_Window, framebuffer_size_callback);
 		glfwSetWindowUserPointer(m_Window, this);
 
-		glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	//	glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		InitImGui();
 
@@ -73,6 +73,7 @@ namespace Fugly
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		ImGui::StyleColorsDark();
 
 		ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
@@ -81,6 +82,11 @@ namespace Fugly
 
 	void Window::Update()
 	{
+		LOG_GL_ERRORS();
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
 		glfwPollEvents();
 		glfwSwapBuffers(m_Window);
 	}
@@ -90,7 +96,7 @@ namespace Fugly
 		Window* win = (Window*)glfwGetWindowUserPointer(window);
 		win->m_Width = width;
 		win->m_Height = height;
-		glViewport(0, 0, width, height);
+		// glViewport(0, 0, width, height);
 	}
 }
 
