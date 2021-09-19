@@ -1,11 +1,11 @@
 #include "Window.h"
 
+#include "../Utils/Log.h"
+#include "../Input/Input.h"
+
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
-
-#include "../Utils/Log.h"
-#include "../Input/Input.h"
 
 namespace Fugly
 {
@@ -51,7 +51,7 @@ namespace Fugly
 			return;
 		}
 
-		glfwSwapInterval(0);
+		glfwSwapInterval(1);
 
 		glfwSetCursorPosCallback(m_Window, cursor_position_callback);
 		glfwSetMouseButtonCallback(m_Window, mouse_button_callback);
@@ -78,6 +78,14 @@ namespace Fugly
 
 		ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
 		ImGui_ImplOpenGL3_Init("#version 330");
+	}
+
+	void Window::SetMouseEnabled(bool enabled)
+	{
+		if(enabled)
+			glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		else 
+			glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 
 	void Window::Update()

@@ -17,6 +17,8 @@ namespace Fugly
 		inline bool Closed() const { return glfwWindowShouldClose(m_Window); }
 		inline float Aspect() const { return (float)m_Width / m_Height; }
 
+		void SetMouseEnabled(bool enabled);
+
 		friend void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 		void Update();

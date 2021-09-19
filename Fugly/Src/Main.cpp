@@ -29,6 +29,41 @@
 
 #include <vector>
 
+#include <stb/stb_image.h>
+
+static unsigned int LoadCubeMap(std::vector<std::string> faces)
+{
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+	stbi_set_flip_vertically_on_load(false);
+
+	int width, height, channels;
+	for (int i = 0; i < faces.size(); i++)
+	{
+		unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &channels, 0);
+		int format = channels == 4 ? GL_RGBA : GL_RGB;
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		}
+		else
+		{
+			Fugly::LOG_ERROR("Failed to load cubemap texture: {0}", faces[i]);	
+		}
+		stbi_image_free(data);
+	}
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	return textureID;
+}
+
 int main()
 {
 	using namespace Fugly;
@@ -50,7 +85,7 @@ int main()
 	Cube cube(glm::vec3(0.1));
 	Plane plane;
 
-	Model Sponza("Res/Models/sponza/sponza.obj");
+	// Model Sponza("Res/Models/sponza/sponza.obj");
 
 	Shader shader("Res/Shaders/TestVertex.glsl", "Res/Shaders/TestFragment.glsl");
 	Shader singleColorShader("Res/Shaders/TestVertex.glsl", "Res/Shaders/FragmentShader.glsl");
@@ -102,6 +137,74 @@ int main()
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
+	std::vector<std::string> faces
+	{	
+		"Res/skybox/right.jpg",
+		"Res/skybox/left.jpg",
+		"Res/skybox/top.jpg",
+		"Res/skybox/bottom.jpg",
+		"Res/skybox/front.jpg",
+		"Res/skybox/back.jpg"
+	};
+
+	unsigned int cubemapTexture = LoadCubeMap(faces);
+
+	float cubeMapVertices[] = {
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		-1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f
+	};
+
+	VertexArray cubeMapVAO;
+	cubeMapVAO.Bind();
+	unsigned int cubeMapVBO;
+	glGenBuffers(1, &cubeMapVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, cubeMapVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeMapVertices), cubeMapVertices, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	Shader skyboxShader("Res/Shaders/SkyboxVertex.glsl", "Res/Shaders/SkyboxFragment.glsl");
+
 	while (!window.Closed())
 	{
 		float currentTime = (float)glfwGetTime();
@@ -123,7 +226,21 @@ int main()
 		FBO.Bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
+
+		glDepthMask(GL_FALSE);
+		skyboxShader.Bind();
+		skyboxShader.SetMatrix4("u_Projection", testProjection);
+		skyboxShader.SetMatrix4("u_View", glm::mat4(glm::mat3(camera.GetViewMatrix())));
+		skyboxShader.SetUniform1i("skybox", 0);
+
+		cubeMapVAO.Bind();
 		
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDepthMask(GL_TRUE);
+
 		
 		testModel = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
 
@@ -152,7 +269,7 @@ int main()
 		testModel = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
 		shader.SetMatrix4("u_Model", testModel);
 		shader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
-		Sponza.Render();
+		// Sponza.Render();
 
 		FBO.Unbind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -178,9 +295,26 @@ int main()
 		ImGui::GetWindowDrawList()->AddImage(
 			(void*)FBO.GetColorBuffer(), ImVec2(pos.x, pos.y + +ImGui::GetWindowSize().y - 35),
 			ImVec2(pos.x + ImGui::GetWindowSize().x - 15, pos.y));
-		ImGui::End();
 
-		camera.Update(deltaTime);
+		glm::vec2 sceneWindowPos = { ImGui::GetWindowPos().x, ImGui::GetWindowPos().y };
+		glm::vec2 sceneWindowSize = { ImGui::GetWindowSize().x, ImGui::GetWindowSize().y };
+		
+		ImGui::End();
+		
+		glm::vec2 mouse = { Mouse::GetX(), Mouse::GetY() };
+		if (Mouse::IsButtonPressed(GLFW_MOUSE_BUTTON_RIGHT) &&
+			mouse.x > sceneWindowPos.x && mouse.x < sceneWindowPos.x + sceneWindowSize.x &&
+			mouse.y > sceneWindowPos.y && mouse.y < sceneWindowPos.y + sceneWindowSize.y)
+		{
+			window.SetMouseEnabled(false);
+			camera.Update(deltaTime);
+		}
+		else
+		{
+			camera.ResetFirstMouse();
+			window.SetMouseEnabled(true);
+		}
+		
 		window.Update();
 		fps++;
 	}
