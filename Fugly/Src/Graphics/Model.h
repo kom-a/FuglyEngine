@@ -20,6 +20,10 @@ namespace Fugly
 		void Render();
 
 		inline const std::vector<Mesh*>& GetMeshes() const { return m_Meshes; }
+		inline glm::vec3& GetPosition() { return Position; }
+
+	public:
+		glm::vec3 Position = glm::vec3(0.0f);
 
 	private:
 		void ProcessNode(aiNode* node, const aiScene* scene);
