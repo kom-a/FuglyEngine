@@ -16,9 +16,11 @@ namespace Fugly
 
 		inline unsigned GetID() const { return m_TexutreID; }
 		inline std::string GetPath() const { return m_Path; }
+		inline size_t GetSize() const { return m_Size; }
 
 	private:
 		unsigned m_TexutreID;
 		std::string m_Path;
+		size_t m_Size;
 	};
 }

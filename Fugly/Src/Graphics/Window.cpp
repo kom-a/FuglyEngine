@@ -12,7 +12,8 @@ namespace Fugly
 	Window::Window(int width, int height, const std::string& title)
 		:	m_Width(width),
 			m_Height(height),
-			m_Title(title)
+			m_Title(title),
+			m_MouseEnabled(true)
 	{
 		Init();
 	}
@@ -37,6 +38,7 @@ namespace Fugly
 			return;
 		}
 
+		glfwWindowHint(GLFW_SAMPLES, 4);
 		m_Window = glfwCreateWindow(m_Width, m_Height, m_Title.c_str(), nullptr, nullptr);
 		if (!m_Window)
 		{
@@ -86,6 +88,13 @@ namespace Fugly
 			glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		else 
 			glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+		m_MouseEnabled = enabled;
+	}
+
+	void Window::SetCursorPos(int x, int y)
+	{
+		glfwSetCursorPos(m_Window, x, y);
 	}
 
 	void Window::Update()

@@ -17,8 +17,6 @@
 #include "Utils/Log.h"
 #include "Input/Input.h"
 
-
-
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -69,34 +67,22 @@ int main()
 	using namespace Fugly;
     
 	Window window(1280, 720, "Fugly");
-    
-	//Renderer renderer;
-    
-	glClearColor(0.7f, 0.8f, 0.9f, 1.0f);
-    
+
 	float lastTime = glfwGetTime();
 	float unprocessedTime = 0;
 	int fps = 0;
     
 	FrameBuffer FBO(window.GetWidth(), window.GetHeight());
 
-	//Model Sponza("Res/Models/sponza/sponza.obj");
+	Model Sponza("Res/Models/sponza/sponza.obj");
 	Model Backpack("Res/Models/Backpack.obj");
-	Cube cube(glm::vec3(0.1));
-	Plane plane;
-
-	// Model Sponza("Res/Models/sponza/sponza.obj");
 
 	Shader shader("Res/Shaders/TestVertex.glsl", "Res/Shaders/TestFragment.glsl");
 	Shader singleColorShader("Res/Shaders/TestVertex.glsl", "Res/Shaders/FragmentShader.glsl");
-	glm::mat4 testModel(1.0f);
-	glm::mat4 testProjection = glm::perspective(glm::radians(45.0f), window.Aspect(), 0.1f, 250.0f);
-    
+	
 	Camera camera(glm::vec3(0, 2, 10));
 	
 	glEnable(GL_DEPTH_TEST);
-
-	glDepthFunc(GL_LESS);
 
 	// position - 3, texCoords - 2
 	float quadVertices[] = {
@@ -127,11 +113,7 @@ int main()
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (const void*)(3 * sizeof(float)));
 
-	Texture grassTexture("Res/Window.png", 0);
 	Shader quadShader("Res/Shaders/QuadVertex.glsl", "Res/Shaders/QuadFragment.glsl");
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -205,6 +187,16 @@ int main()
 
 	Shader skyboxShader("Res/Shaders/SkyboxVertex.glsl", "Res/Shaders/SkyboxFragment.glsl");
 
+	glEnable(GL_MULTISAMPLE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), window.Aspect(), 0.01f, 500.0f);
+	glm::mat4 model = glm::mat4(1.0f);
+
+	float fov = 45.0f;
+
+	glm::vec2 lastMouse = { Mouse::GetX(), Mouse::GetY() };
+
 	while (!window.Closed())
 	{
 		float currentTime = (float)glfwGetTime();
@@ -213,6 +205,7 @@ int main()
         
 		unprocessedTime += deltaTime;
         
+		// Print FPS
 		if (unprocessedTime >= 1)
 		{
 			unprocessedTime = 0;
@@ -222,98 +215,93 @@ int main()
         
 		if (Keyboard::IsKeyPressed(GLFW_KEY_ESCAPE))
 			window.Close();
+
+		if (Keyboard::IsKeyPressed(GLFW_KEY_UP))
+		{
+			fov -= 100 * deltaTime;
+		}
+		else if (Keyboard::IsKeyPressed(GLFW_KEY_DOWN))
+		{
+			fov += 100 * deltaTime;
+		}
 		
 		FBO.Bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// ============================ Skybox =================================================
+		glDisable(GL_DEPTH_TEST);
+
+		skyboxShader.Bind();
+		skyboxShader.SetMatrix4("u_View", glm::mat4(glm::mat3(camera.GetViewMatrix())));
+		skyboxShader.SetMatrix4("u_Projection", projection);
+		cubeMapVAO.Bind();
+		glBindBuffer(GL_ARRAY_BUFFER, cubeMapVBO);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
 		glEnable(GL_DEPTH_TEST);
 
-		glDepthMask(GL_FALSE);
-		skyboxShader.Bind();
-		skyboxShader.SetMatrix4("u_Projection", testProjection);
-		skyboxShader.SetMatrix4("u_View", glm::mat4(glm::mat3(camera.GetViewMatrix())));
-		skyboxShader.SetUniform1i("skybox", 0);
+		// =========================== End of drawing skybox ===================================
 
-		cubeMapVAO.Bind();
-		
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glDepthMask(GL_TRUE);
-
-		
-		testModel = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
+		projection = glm::perspective(glm::radians(fov), window.Aspect(), 0.1f, 500.0f);
 
 		shader.Bind();
-		shader.SetMatrix4("u_Projection", testProjection);
-		shader.SetMatrix4("u_View", camera.GetViewMatrix());
-		shader.SetMatrix4("u_Model", testModel);
-		shader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
 		shader.SetUniform3f("u_CameraPos", camera.GetPosition());
-        
-		shader.SetUniform1i("diffuseSampler", 0);
-		shader.SetUniform1i("specularSampler", 1);
+		shader.SetMatrix4("u_View", camera.GetViewMatrix());
+		shader.SetMatrix4("u_Projection", projection);
 
-		testModel = glm::translate(glm::mat4(1.0f), glm::vec3(0));
-		testModel = glm::scale(testModel, glm::vec3(25, 0.25, 25));
-		shader.SetMatrix4("u_Model", testModel);
-		shader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
-		plane.Render();
-
-		testModel = glm::translate(glm::mat4(1.0f), glm::vec3(0, 1.75, 0));
-		testModel = glm::rotate(testModel, float(glfwGetTime()), glm::vec3(0, 1, 0));
-		shader.SetMatrix4("u_Model", testModel);
-		shader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(0, 1.75, 0));
+		model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0, 1, 0));
+		model = glm::scale(model, glm::vec3(1.0f));
+		shader.SetMatrix4("u_Model", model);
+		shader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(model)));
 		Backpack.Render();
 
-		testModel = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
-		shader.SetMatrix4("u_Model", testModel);
-		shader.SetMatrix3("u_NormalMatrix", glm::transpose(glm::inverse(testModel)));
-		// Sponza.Render();
 
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(0));
+		model = glm::scale(model, glm::vec3(0.05f));
+		shader.SetMatrix4("u_Model", model);
+		shader.SetMatrix3("u_NormalMatrix", glm::mat3(glm::transpose(glm::inverse(model))));
+		Sponza.Render();
+		
 		FBO.Unbind();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		VAO.Bind();
-		quadShader.Bind();
-		quadShader.SetUniform1i("sampler", 0);
-		glDisable(GL_DEPTH_TEST);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-		glActiveTexture(GL_TEXTURE0);
-		// glBindTexture(GL_TEXTURE_2D, FBO.GetColorBuffer());
-		// glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-
-		ImGui::DockSpaceOverViewport();
-		ImGui::ShowDemoWindow();
-		ImGui::ShowMetricsWindow();
-		ImGui::Begin("Scene");
-		ImVec2 pos = ImGui::GetCursorScreenPos();
-		ImGui::GetWindowDrawList()->AddImage(
-			(void*)FBO.GetColorBuffer(), ImVec2(pos.x, pos.y + +ImGui::GetWindowSize().y - 35),
-			ImVec2(pos.x + ImGui::GetWindowSize().x - 15, pos.y));
-
-		glm::vec2 sceneWindowPos = { ImGui::GetWindowPos().x, ImGui::GetWindowPos().y };
-		glm::vec2 sceneWindowSize = { ImGui::GetWindowSize().x, ImGui::GetWindowSize().y };
 		
-		ImGui::End();
+		// ImGUI render
+		{
+			ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplGlfw_NewFrame();
+			ImGui::NewFrame();
+
+			ImGui::DockSpaceOverViewport();
+			ImGui::ShowDemoWindow();
+			ImGui::ShowMetricsWindow();
+			ImGui::Begin("Scene");
+			ImVec2 pos = ImGui::GetCursorScreenPos();
+			ImGui::GetWindowDrawList()->AddImage(
+				(void*)FBO.GetColorBuffer(), ImVec2(pos.x, pos.y + +ImGui::GetWindowSize().y - 35),
+				ImVec2(pos.x + ImGui::GetWindowSize().x - 15, pos.y));
+
+			glm::vec2 sceneWindowPos = { ImGui::GetWindowPos().x, ImGui::GetWindowPos().y };
+			glm::vec2 sceneWindowSize = { ImGui::GetWindowSize().x, ImGui::GetWindowSize().y };
+
+			ImGui::End();
+			glm::vec2 mouse = { Mouse::GetX(), Mouse::GetY() };
+
+			if (Mouse::IsButtonPressed(GLFW_MOUSE_BUTTON_RIGHT) &&
+				lastMouse.x > sceneWindowPos.x && lastMouse.x < sceneWindowPos.x + sceneWindowSize.x &&
+				lastMouse.y > sceneWindowPos.y && lastMouse.y < sceneWindowPos.y + sceneWindowSize.y)
+			{
+				window.SetMouseEnabled(false);
+				camera.Update(deltaTime);
+			}
+			else
+			{
+				window.SetMouseEnabled(true);
+				camera.ResetFirstMouse();
+				lastMouse = { Mouse::GetX(), Mouse::GetY() };
+			}
+		}
 		
-		glm::vec2 mouse = { Mouse::GetX(), Mouse::GetY() };
-		if (Mouse::IsButtonPressed(GLFW_MOUSE_BUTTON_RIGHT) &&
-			mouse.x > sceneWindowPos.x && mouse.x < sceneWindowPos.x + sceneWindowSize.x &&
-			mouse.y > sceneWindowPos.y && mouse.y < sceneWindowPos.y + sceneWindowSize.y)
-		{
-			window.SetMouseEnabled(false);
-			camera.Update(deltaTime);
-		}
-		else
-		{
-			camera.ResetFirstMouse();
-			window.SetMouseEnabled(true);
-		}
 		
 		window.Update();
 		fps++;

@@ -34,7 +34,9 @@ namespace Fugly
 
  	Mesh::~Mesh()
 	{
-
+		glDeleteVertexArrays(1, &m_VAO);
+		glDeleteBuffers(1, &m_VBO);
+		glDeleteBuffers(1, &m_IBO);
 	}
 
 	void Mesh::Render()

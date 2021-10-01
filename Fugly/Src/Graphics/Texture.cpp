@@ -15,7 +15,7 @@ namespace Fugly
 		Bind(unit);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-		glGenerateMipmap(GL_TEXTURE_2D);
+		// glGenerateMipmap(GL_TEXTURE_2D);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -42,7 +42,7 @@ namespace Fugly
 		if (data)
 		{
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-			// glGenerateMipmap(GL_TEXTURE_2D);
+			glGenerateMipmap(GL_TEXTURE_2D);
 
 			LOG_DEBUG("Texture loaded \"{0}\"", filename);
 		}
@@ -50,6 +50,7 @@ namespace Fugly
 		{
 			LOG_ERROR("Failed to load texture \"{0}\"", filename);
 		}
+		m_Size = width * height * 4; // size of data in bytes
 		stbi_image_free(data);
 		Unbind();
 

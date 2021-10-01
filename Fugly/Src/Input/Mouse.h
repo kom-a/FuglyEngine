@@ -23,6 +23,7 @@ namespace Fugly
 
 	private:
 		friend class Camera;
+	public:
 		static bool s_MouseUsed;
 	};
 
